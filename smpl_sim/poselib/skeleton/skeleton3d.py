@@ -146,17 +146,16 @@ class SkeletonTree(Serializable):
         ])
 
     @classmethod
-    def from_mjcf(cls, path: str) -> "SkeletonTree":
+    def from_mjct(cls, tree: ET.ElementTree) -> "SkeletonTree":
         """
-        Parses a mujoco xml scene description file and returns a Skeleton Tree.
+        Parses a mujoco xml scene description xml tree and returns a Skeleton Tree.
         We use the model attribute at the root as the name of the tree.
         
-        :param path:
-        :type path: string
+        :param tree:
+        :type tree: ElementTree
         :return: The skeleton tree constructed from the mjcf file
         :rtype: SkeletonTree
         """
-        tree = ET.parse(path)
         xml_doc_root = tree.getroot()
         xml_world_body = xml_doc_root.find("worldbody")
         if xml_world_body is None:
@@ -191,6 +190,21 @@ class SkeletonTree(Serializable):
             torch.from_numpy(np.array(parent_indices, dtype=np.int32)),
             torch.from_numpy(np.array(local_translation, dtype=np.float32)),
         )
+
+
+    @classmethod
+    def from_mjcf(cls, path: str) -> "SkeletonTree":
+        """
+        Parses a mujoco xml scene description file and returns a Skeleton Tree.
+        We use the model attribute at the root as the name of the tree.
+        
+        :param path:
+        :type path: string
+        :return: The skeleton tree constructed from the mjcf file
+        :rtype: SkeletonTree
+        """
+        tree = ET.parse(path)
+        return cls.from_mjct(tree)
 
     def parent_of(self, node_name):
         """ get the name of the parent of the given node
